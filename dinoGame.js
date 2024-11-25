@@ -46,10 +46,10 @@ function ticker(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     //敵キャラクタの生成
-    if(Math.floor(Math.random() * 100)===0){
+    if(Math.floor(Math.random() * (100-game.score/100))===0){
         createCactus();
     }
-    if(Math.floor(Math.random()*200)===0){
+    if(Math.floor(Math.random()*(200-game.score/100))===0){
         createBird();
     }
 
@@ -60,9 +60,13 @@ function ticker(){
     //描画
     drawDino();
     drawEnemys();
+    drawScore();
 
     //ToDo 当たり判定
+    hitcheck();
     //カウンタの更新
+    game.score +=1;
+
     game.counter = (game.counter + 1)%1000000
 }
 
@@ -129,11 +133,36 @@ function drawEnemys(){
     }
 }
 
+function drawScore(){
+    ctx.font = '24px serif';
+    ctx.fillText(`score: ${game.score}`,0,30);
+}
+function hitcheck(){
+
+    for(const enemy of game.enemys){
+        if(
+            Math.abs(game.dino.x-enemy.x)<game.dino.width*0.8 /2 +enemy.width*0.9 /2 &&
+            Math.abs(game.dino.y - enemy.y) < game.dino.height + 0.5 / 2 + enemy.height * 0.9 / 2
+
+        ){
+            game.isGameOver = true;
+            ctx.font = 'bold 100px serif';
+            ctx.fillText(`Game Over` , 150,200);
+
+            clearInterval(game.timer);
+        }
+    }
+}
+
 
 
 document.onkeydown = function(e){
     if(e.key === ' ' && game.dino.moveY === 0){
-        game.dino.moveY = -41
+        game.dino.moveY = -41;
+    }
+
+    if(e.key==='Enter' && game.isGameOver === true){
+        init();
     }
 }
 
